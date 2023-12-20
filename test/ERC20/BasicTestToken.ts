@@ -167,20 +167,20 @@ if (developmentChains.includes(network.name)) {
         const basicTestTokenSecondUser = basicTestToken.connect(secondAccount);
         const { r, s, v } = await signERC2612Permit(owner, await basicTestToken.getAddress(), owner.address, secondAccount.address, ethers.MaxUint256.toString());
         const initialTokenAmountSecondUser = await basicTestToken.balanceOf(secondAccount.address);
-        console.log("initial second user balance: ", initialTokenAmountSecondUser);
+        // console.log("initial second user balance: ", initialTokenAmountSecondUser);
         // add permission
         await (await basicTestTokenSecondUser.permit(owner.address, secondAccount.address, ethers.MaxUint256.toString(), ethers.MaxUint256.toString(), v, r, s)).wait();
-        console.log("permited");
+        // console.log("permited");
         await (await basicTestTokenSecondUser.transferFrom(owner.address, secondAccount.address, INITIAL_OWNER_TOKENS)).wait();
-        console.log("transfered");
+        // console.log("transfered");
         const newAmount = await basicTestToken.balanceOf(secondAccount.address);
-        console.log("new token amount: ", newAmount);
+        // console.log("new token amount: ", newAmount);
         expect(newAmount).to.equal(INITIAL_OWNER_TOKENS + initialTokenAmountSecondUser);
 
         // remove permission after test
-        console.log("before remove allowance");
+        // console.log("before remove allowance");
         await (await basicTestToken.approve(secondAccount.address, 0)).wait();
-        console.log("removed permit");
+        // console.log("removed permit");
         expect(await basicTestToken.allowance(owner.address, secondAccount.address)).to.equal(0n);
       }).timeout(1000000);
     });
