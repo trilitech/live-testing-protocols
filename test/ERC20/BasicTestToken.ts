@@ -144,6 +144,7 @@ if (developmentChains.includes(network.name)) {
 
         try {
           await (await basicTestToken.connect(secondAccount).mint(secondAccount.address, AMOUNT_TO_MINT)).wait();
+          throw new Error('Should have revert');
         } catch (error: any) {
           if (error.data && basicTestToken) {
             const decodedError = basicTestToken.interface.parseError(error.data);
