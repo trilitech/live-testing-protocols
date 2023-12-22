@@ -955,7 +955,7 @@ if (developmentChains.includes(network.name)) {
           }
         }
       });
-      it("Should handle revert statement", async function () {
+      it("Should handle exception directly inside solidity", async function () {
         // Should always return true
         expect(await evmCompatibilityTest.handleException()).to.equal(true);
       });
