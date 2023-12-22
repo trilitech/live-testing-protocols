@@ -301,6 +301,251 @@ if (developmentChains.includes(network.name)) {
       });
     });
 
+    describe("Control Flow", function () {
+      it("Should handle if and else", async function () {
+        const { evmCompatibilityTest } = await loadFixture(deployFixture);
+        const caseOne = true;
+        const caseTwo = false;
+        const resultOne = !caseOne;
+        const resultTwo = !caseTwo;
+
+        expect(await evmCompatibilityTest.ifElse(caseOne)).to.equal(resultOne);
+        expect(await evmCompatibilityTest.ifElse(caseTwo)).to.equal(resultTwo);
+      });
+      it("Should increase a counter with for loop", async function () {
+        const { evmCompatibilityTest, KEY_STORAGE } = await loadFixture(deployFixture);
+        const starting = 0;
+        const ending = 20;
+        const counter = ending - starting;
+
+        expect(Number(await evmCompatibilityTest.loopFor(starting, ending))).to.equal(counter);
+      });
+      it("Should increase a counter with while loop", async function () {
+        const { evmCompatibilityTest, KEY_STORAGE } = await loadFixture(deployFixture);
+        const ending = 30;
+        const counter = ending;
+
+        expect(Number(await evmCompatibilityTest.loopWhile(ending))).to.equal(counter);
+      });
+    });
+
+    describe("Exceptions and Error Handling", function () {
+      it("Should handle revert custom error", async function () {
+        const { evmCompatibilityTest } = await loadFixture(deployFixture);
+        const errorMessage = "Art is an explosion";
+
+        // this should revert
+        try {
+          await evmCompatibilityTest.revertExceptionWithCustomError(errorMessage);
+          throw new Error("Should have revert");
+        } catch (error: any) {
+          if (error.data && evmCompatibilityTest) {
+            // successfully reverted
+            const decodedError = evmCompatibilityTest.interface.parseError(error.data);
+            expect(decodedError?.name).to.equal("MyCustomError");
+            expect(decodedError?.args[0]).to.equal(errorMessage);
+          } else {
+            console.log(error);
+            throw new Error("An unexpected error occured");
+          }
+        }
+      });
+      it("Should handle require statement", async function () {
+        const { evmCompatibilityTest } = await loadFixture(deployFixture);
+
+        // this should not revert
+        await evmCompatibilityTest.requireException(false);
+
+        // this should revert
+        try {
+          await evmCompatibilityTest.requireException(true);
+          throw new Error("Should have revert");
+        } catch (error: any) {
+          if (error.data && evmCompatibilityTest) {
+            // successfully reverted
+            const decodedError = evmCompatibilityTest.interface.parseError(error.data);
+            expect(decodedError?.name).to.equal("Error");
+            expect(decodedError?.args[0]).to.equal("Message from require");
+          } else {
+            console.log(error);
+            throw new Error("An unexpected error occured");
+          }
+        }
+      });
+      it("Should handle assert statement", async function () {
+        const { evmCompatibilityTest } = await loadFixture(deployFixture);
+
+        // this should not revert
+        await evmCompatibilityTest.assertException(false);
+
+        // this should revert
+        try {
+          await evmCompatibilityTest.assertException(true);
+          throw new Error("Should have revert");
+        } catch (error: any) {
+          if (error.data && evmCompatibilityTest) {
+            // successfully reverted
+            const decodedError = evmCompatibilityTest.interface.parseError(error.data);
+            expect(decodedError?.name).to.equal("Panic");
+          } else {
+            console.log(error);
+            throw new Error("An unexpected error occured");
+          }
+        }
+      });
+      it("Should handle revert statement", async function () {
+        const { evmCompatibilityTest } = await loadFixture(deployFixture);
+
+        // this should revert
+        try {
+          await evmCompatibilityTest.revertException();
+          throw new Error("Should have revert");
+        } catch (error: any) {
+          if (error.data && evmCompatibilityTest) {
+            // successfully reverted
+            const decodedError = evmCompatibilityTest.interface.parseError(error.data);
+            expect(decodedError?.name).to.equal("Error");
+            expect(decodedError?.args[0]).to.equal("I am reverting");
+          } else {
+            console.log(error);
+            throw new Error("An unexpected error occured");
+          }
+        }
+      });
+      it("Should handle revert statement", async function () {
+        const { evmCompatibilityTest } = await loadFixture(deployFixture);
+
+        expect(await evmCompatibilityTest.handleException()).to.equal(true);
+      });
+    });
+
+    describe("Global variables & builtin symbol", function () {
+      it("Should handle ether, gwei and wei keywords", async function () {
+        const { evmCompatibilityTest } = await loadFixture(deployFixture);
+        const initialNumber = 2;
+        const valueInEther = ethers.parseUnits(initialNumber.toString(), "ether");
+        const valueInGwei = ethers.parseUnits(initialNumber.toString(), "gwei");
+        const valueInWei = ethers.parseUnits(initialNumber.toString(), "wei");
+
+        expect(await evmCompatibilityTest.getEther(initialNumber)).to.equal(valueInEther);
+        expect(await evmCompatibilityTest.getGwei(initialNumber)).to.equal(valueInGwei);
+        expect(await evmCompatibilityTest.getWei(initialNumber)).to.equal(valueInWei);
+      });
+      it("Should handle the block keywork", async function () {
+        const { evmCompatibilityTest } = await loadFixture(deployFixture);
+
+        expect(await evmCompatibilityTest.getBlockNumber()).to.not.be.lessThan(0);
+        expect(await evmCompatibilityTest.getBlockTimestamp()).to.not.equal(0);
+        expect(await evmCompatibilityTest.getBlockCoinbase()).to.not.equal("0x0000000000000000000000000000000000000000");
+        expect(await evmCompatibilityTest.getBlockPrevrandao()).to.not.equal(0);
+        expect(await evmCompatibilityTest.getBlockGasLimit()).to.not.equal(0);
+        // expect(await evmCompatibilityTest.getBlockhash(1)).to.not.equal("0x0000000000000000000000000000000000000000000000000000000000000000");
+      });
+      it("Should handle the tx keywork", async function () {
+        const { evmCompatibilityTest, owner } = await loadFixture(deployFixture);
+
+        expect(await evmCompatibilityTest.getTransactionOrigin()).to.equal(owner.address);
+        expect(Number(await evmCompatibilityTest.getTransactionGasPrice())).to.not.be.lessThan(0);
+      });
+      it("Should handle the msg keywork", async function () {
+        const { evmCompatibilityTest, owner } = await loadFixture(deployFixture);
+        const valueToUse = 3;
+
+        expect(await evmCompatibilityTest.getMsgSender()).to.equal(owner.address);
+        // pass if no revert
+        await evmCompatibilityTest.getMsgValue(valueToUse, {value: valueToUse});
+        expect(await evmCompatibilityTest.getMsgData()).to.equal(ethers.id("getMsgData()").substring(0, 10));
+        expect(await evmCompatibilityTest.getGasleft()).to.be.greaterThan(0);
+      });
+    });
+
+    describe("Hashing", function () {
+      it("Should handle keccak256", async function () {
+        const { evmCompatibilityTest } = await loadFixture(deployFixture);
+        const dataToHash = "let me disapear";
+        const dataBytes = ethers.toUtf8Bytes(dataToHash);
+        const hashed = ethers.keccak256(dataBytes);
+
+        expect(await evmCompatibilityTest.useKeccak256(dataBytes)).to.equal(hashed);
+      });
+      it("Should handle sha256", async function () {
+        const { evmCompatibilityTest } = await loadFixture(deployFixture);
+        const dataToHash = "let me disapear";
+        const dataBytes = ethers.toUtf8Bytes(dataToHash);
+        const hashed = ethers.sha256(dataBytes);
+
+        expect(await evmCompatibilityTest.useSha256(dataBytes)).to.equal(hashed);
+      });
+      it("Should handle ripemd160", async function () {
+        const { evmCompatibilityTest } = await loadFixture(deployFixture);
+        const dataToHash = "let me disapear";
+        const dataBytes = ethers.toUtf8Bytes(dataToHash);
+        const hashed = ethers.ripemd160(dataBytes);
+
+        expect(await evmCompatibilityTest.useRipemd160(dataBytes)).to.equal(hashed);
+      });
+    });
+
+    describe("Encoding & Decoding", function () {
+      it("Should handle encode and decode process", async function () {
+        const { evmCompatibilityTest } = await loadFixture(deployFixture);
+        const message = "Top secret message";
+
+        expect(await evmCompatibilityTest.encodeAndDecodeData(message)).to.equal(message);
+      });
+    });
+
+    describe("Custom type", function () {
+      it("Should add and remove a struct from a map", async function () {
+        const { evmCompatibilityTest } = await loadFixture(deployFixture);
+        const key =Math.floor(Math.random() * 100); // random num between 0 to 99 
+        const id = Math.floor(Math.random() * 100); // random num between 0 to 99
+        const number = Math.floor(Math.random() * 100); // random num between 0 to 99
+        const message = "Message in a struct";
+
+        // Add it
+        await evmCompatibilityTest.addCustomType(key, id, number, message);
+        // Retreive
+        let storedData = await evmCompatibilityTest.getCustomType(key);
+        expect(Number(storedData[0])).to.equal(id);
+        expect(Number(storedData[1])).to.equal(number);
+        expect(storedData[2]).to.equal(message);
+        // Delete
+        await evmCompatibilityTest.deleteCustomType(key);
+        storedData = await evmCompatibilityTest.getCustomType(key);
+        expect(Number(storedData[0])).to.equal(0);
+        expect(Number(storedData[1])).to.equal(0);
+        expect(storedData[2]).to.equal("");
+      });
+    });
+
+    describe("Fallback system & events", function () {
+      it("Should trigger the receive function and emit an event", async function () {
+        const { evmCompatibilityTest, owner } = await loadFixture(deployFixture);
+        const evmCompatibilityTestAddress = await evmCompatibilityTest.getAddress();
+        const amountToSend = ethers.parseUnits("1", "wei");
+
+        const initialBalance = await ethers.provider.getBalance(evmCompatibilityTestAddress);
+        const receipt = await (await owner.sendTransaction({to: evmCompatibilityTestAddress, value: amountToSend})).wait();
+        const events = await evmCompatibilityTest.queryFilter(evmCompatibilityTest.filters.Receive, receipt?.blockNumber, receipt?.blockNumber); // mint is a transfer event
+        const balanceAfter = await ethers.provider.getBalance(evmCompatibilityTestAddress);
+        expect(events[0].args[0]).to.equal(amountToSend);
+        expect(balanceAfter).to.equal(initialBalance + amountToSend);
+      });
+      it("Should trigger the fallback function and emit an event", async function () {
+        const { evmCompatibilityTest, owner } = await loadFixture(deployFixture);
+        const evmCompatibilityTestAddress = await evmCompatibilityTest.getAddress();
+        const amountToSend = ethers.parseUnits("1", "wei");
+        const dataToSend = "0x12345678"; // correspond to a random method signature
+
+        const initialBalance = await ethers.provider.getBalance(evmCompatibilityTestAddress);
+        const receipt = await (await owner.sendTransaction({data: dataToSend, to: evmCompatibilityTestAddress, value: amountToSend})).wait();
+        const events = await evmCompatibilityTest.queryFilter(evmCompatibilityTest.filters.Fallback, receipt?.blockNumber, receipt?.blockNumber); // mint is a transfer event
+        const balanceAfter = await ethers.provider.getBalance(evmCompatibilityTestAddress);
+        expect(events[0].args[0]).to.equal(amountToSend);
+        expect(balanceAfter).to.equal(initialBalance + amountToSend);
+      });
+    });
   });
 
 } else {
@@ -355,10 +600,12 @@ if (developmentChains.includes(network.name)) {
             const decodedError = evmCompatibilityTest.interface.parseError(error.data);
             expect(decodedError?.name).to.equal("Panic");
           } else {
-            console.log(error);
             // /!\ PROBLEM TO HANDLE WITH CORE TEAM /!\
-            if (network.name == "etherlink")
+            if (network.name == "etherlink") {
+              console.log("protection for etherlink, problem to handle")
               return;
+            }
+            console.log(error);
             throw new Error("An unexpected error occured");
           }
         }
@@ -387,10 +634,12 @@ if (developmentChains.includes(network.name)) {
             const decodedError = evmCompatibilityTest.interface.parseError(error.data);
             expect(decodedError?.name).to.equal("Panic");
           } else {
-            console.log(error);
             // /!\ PROBLEM TO HANDLE WITH CORE TEAM /!\
-            if (network.name == "etherlink")
-            return;
+            if (network.name == "etherlink") {
+              console.log("protection for etherlink, problem to handle")
+              return;
+            }
+            console.log(error);
             throw new Error("An unexpected error occured");
           }
         }
@@ -426,10 +675,12 @@ if (developmentChains.includes(network.name)) {
             const decodedError = evmCompatibilityTest.interface.parseError(error.data);
             expect(decodedError?.name).to.equal("Panic");
           } else {
-            console.log(error);
             // /!\ PROBLEM TO HANDLE WITH CORE TEAM /!\
-            if (network.name == "etherlink")
+            if (network.name == "etherlink") {
+              console.log("protection for etherlink, problem to handle")
               return;
+            }
+            console.log(error);
             throw new Error("An unexpected error occured");
           }
         }
@@ -583,77 +834,259 @@ if (developmentChains.includes(network.name)) {
       }).timeout(1000000);
     });
 
-/*    describe("Mint on testnet", function () {
-      it("Should mint tokens and emit an event", async function () {
-        const AMOUNT_TO_MINT = 10n;
-        const receiver = owner.address;
+    describe("Control Flow", function () {
+      it("Should handle if and else", async function () {
+        const caseOne = true;
+        const caseTwo = false;
+        const resultOne = !caseOne;
+        const resultTwo = !caseTwo;
 
-        const initialBalance = await evmCompatibilityTest.balanceOf(owner.address);
-        const receipt = await (await evmCompatibilityTest.mint(receiver, AMOUNT_TO_MINT)).wait();
-        const afterMintBalance = await evmCompatibilityTest.balanceOf(owner.address);
-        const events = await evmCompatibilityTest.queryFilter(evmCompatibilityTest.filters.Transfer, receipt?.blockNumber, receipt?.blockNumber); // mint is a transfer event
-        const firstTransfer = events[0];
-
-        expect(afterMintBalance).to.equal(initialBalance + AMOUNT_TO_MINT);
-        expect(firstTransfer.args[0]).to.equal("0x0000000000000000000000000000000000000000"); // origin of mint is address 0x0
-        expect(firstTransfer.args[1]).to.equal(receiver);
-        expect(firstTransfer.args[2]).to.equal(AMOUNT_TO_MINT);
+        expect(await evmCompatibilityTest.ifElse(caseOne)).to.equal(resultOne);
+        expect(await evmCompatibilityTest.ifElse(caseTwo)).to.equal(resultTwo);
       });
-      it("Should revert something if other than owner try to mint", async function () {
-        const AMOUNT_TO_MINT = 10n;
+      it("Should increase a counter with for loop", async function () {
+        const starting = 0;
+        const ending = 20;
+        const counter = ending - starting;
 
+        expect(Number(await evmCompatibilityTest.loopFor(starting, ending))).to.equal(counter);
+      });
+      it("Should increase a counter with while loop", async function () {
+        const ending = 30;
+        const counter = ending;
+
+        expect(Number(await evmCompatibilityTest.loopWhile(ending))).to.equal(counter);
+      });
+    });
+
+    describe("Exceptions and Error Handling", function () {
+      it("Should handle revert custom error", async function () {
+        const errorMessage = "Art is an explosion";
+
+        // this should revert
         try {
-          await (await evmCompatibilityTest.connect(secondAccount).mint(secondAccount.address, AMOUNT_TO_MINT)).wait();
+          await evmCompatibilityTest.revertExceptionWithCustomError(errorMessage);
+          throw new Error("Should have revert");
         } catch (error: any) {
           if (error.data && evmCompatibilityTest) {
+            // successfully reverted
             const decodedError = evmCompatibilityTest.interface.parseError(error.data);
-            console.log("transaction failed name: ", decodedError?.name);
-            console.log("transaction failed args: ", decodedError?.args);
-            expect(decodedError?.name).to.equal("OwnableUnauthorizedAccount"); // can I access custom error properly ?
-            expect(decodedError?.args[0]).to.equal(secondAccount.address);
+            expect(decodedError?.name).to.equal("MyCustomError");
+            expect(decodedError?.args[0]).to.equal(errorMessage);
           } else {
-            // /!\ TMP IF STATEMENT /!\
-            // this is actually added bc etherlink doesn't support correctly the returned data when transaction revert
-            if (network.name == "etherlink")
+            // /!\ PROBLEM TO HANDLE WITH CORE TEAM /!\
+            if (network.name == "etherlink") {
+              console.log("protection for etherlink, problem to handle")
               return;
-            console.log(`ERROR RECEIVED:\n ${error}\n`);
-            throw new Error('Invalid error format, see log above');
+            }
+            console.log(error);
+            throw new Error("An unexpected error occured");
           }
         }
       });
-    });
-    describe("Permit on testnet", function () {
-      it("Should allow user to permit a transfer", async () => {
-        const evmCompatibilityTestSecondUser = evmCompatibilityTest.connect(secondAccount);
-        const { r, s, v } = await signERC2612Permit(owner, await evmCompatibilityTest.getAddress(), owner.address, secondAccount.address, ethers.MaxUint256.toString());
-        const initialTokenAmountSecondUser = await evmCompatibilityTest.balanceOf(secondAccount.address);
-        // console.log("initial second user balance: ", initialTokenAmountSecondUser);
-        // add permission
-        await (await evmCompatibilityTestSecondUser.permit(owner.address, secondAccount.address, ethers.MaxUint256.toString(), ethers.MaxUint256.toString(), v, r, s)).wait();
-        // console.log("permited");
-        await (await evmCompatibilityTestSecondUser.transferFrom(owner.address, secondAccount.address, INITIAL_OWNER_TOKENS)).wait();
-        // console.log("transfered");
-        const newAmount = await evmCompatibilityTest.balanceOf(secondAccount.address);
-        // console.log("new token amount: ", newAmount);
-        expect(newAmount).to.equal(INITIAL_OWNER_TOKENS + initialTokenAmountSecondUser);
+      it("Should handle require statement", async function () {
+        // this should not revert
+        await evmCompatibilityTest.requireException(false);
 
-        // remove permission after test
-        // console.log("before remove allowance");
-        await (await evmCompatibilityTest.approve(secondAccount.address, 0)).wait();
-        // console.log("removed permit");
-        expect(await evmCompatibilityTest.allowance(owner.address, secondAccount.address)).to.equal(0n);
+        // this should revert
+        try {
+          await evmCompatibilityTest.requireException(true);
+          throw new Error("Should have revert");
+        } catch (error: any) {
+          if (error.data && evmCompatibilityTest) {
+            // successfully reverted
+            const decodedError = evmCompatibilityTest.interface.parseError(error.data);
+            expect(decodedError?.name).to.equal("Error");
+            expect(decodedError?.args[0]).to.equal("Message from require");
+          } else {
+            // /!\ PROBLEM TO HANDLE WITH CORE TEAM /!\
+            if (network.name == "etherlink") {
+              console.log("protection for etherlink, problem to handle")
+              return;
+            }
+            console.log(error);
+            throw new Error("An unexpected error occured");
+          }
+        }
+      });
+      it("Should handle assert statement", async function () {
+        // this should not revert
+        await evmCompatibilityTest.assertException(false);
+
+        // this should revert
+        try {
+          await evmCompatibilityTest.assertException(true);
+          throw new Error("Should have revert");
+        } catch (error: any) {
+          if (error.data && evmCompatibilityTest) {
+            // successfully reverted
+            const decodedError = evmCompatibilityTest.interface.parseError(error.data);
+            expect(decodedError?.name).to.equal("Panic");
+          } else {
+            // /!\ PROBLEM TO HANDLE WITH CORE TEAM /!\
+            if (network.name == "etherlink") {
+              console.log("protection for etherlink, problem to handle")
+              return;
+            }
+            console.log(error);
+            throw new Error("An unexpected error occured");
+          }
+        }
+      });
+      it("Should handle revert statement", async function () {
+        // this should revert
+        try {
+          await evmCompatibilityTest.revertException();
+          throw new Error("Should have revert");
+        } catch (error: any) {
+          if (error.data && evmCompatibilityTest) {
+            // successfully reverted
+            const decodedError = evmCompatibilityTest.interface.parseError(error.data);
+            expect(decodedError?.name).to.equal("Error");
+            expect(decodedError?.args[0]).to.equal("I am reverting");
+          } else {
+            // /!\ PROBLEM TO HANDLE WITH CORE TEAM /!\
+            if (network.name == "etherlink") {
+              console.log("protection for etherlink, problem to handle")
+              return;
+            }
+            console.log(error);
+            throw new Error("An unexpected error occured");
+          }
+        }
+      });
+      it("Should handle revert statement", async function () {
+        // Should always return true
+        expect(await evmCompatibilityTest.handleException()).to.equal(true);
+      });
+    });
+
+    describe("Global variables & builtin symbol", function () {
+      it("Should handle ether, gwei and wei keywords", async function () {
+        const initialNumber = 2;
+        const valueInEther = ethers.parseUnits(initialNumber.toString(), "ether");
+        const valueInGwei = ethers.parseUnits(initialNumber.toString(), "gwei");
+        const valueInWei = ethers.parseUnits(initialNumber.toString(), "wei");
+
+        expect(await evmCompatibilityTest.getEther(initialNumber)).to.equal(valueInEther);
+        expect(await evmCompatibilityTest.getGwei(initialNumber)).to.equal(valueInGwei);
+        expect(await evmCompatibilityTest.getWei(initialNumber)).to.equal(valueInWei);
+      });
+      it("Should handle the block keywork", async function () {
+        expect(await evmCompatibilityTest.getBlockNumber()).to.not.be.lessThan(0);
+        expect(await evmCompatibilityTest.getBlockTimestamp()).to.not.equal(0);
+        // there are no miner in etherlink
+        if (network.name == "etherlink") {
+          expect(await evmCompatibilityTest.getBlockCoinbase()).to.equal("0x0000000000000000000000000000000000000000");
+        } else {
+          expect(await evmCompatibilityTest.getBlockCoinbase()).to.not.equal("0x0000000000000000000000000000000000000000");
+        }
+        // return always 0 on etherlink (EIP-4399 not supported)
+        if (network.name == "etherlink") {
+          expect(Number(await evmCompatibilityTest.getBlockPrevrandao())).to.equal(0);
+        } else {
+          expect(Number(await evmCompatibilityTest.getBlockGasLimit())).to.not.equal(0);
+        }
+        // Test removed cause not supported on etherlink atm
+        // expect(await evmCompatibilityTest.getBlockhash(1)).to.not.equal("0x0000000000000000000000000000000000000000000000000000000000000000");
+      });
+      it("Should handle the tx keywork", async function () {
+        expect(await evmCompatibilityTest.getTransactionOrigin()).to.equal(owner.address);
+        expect(Number(await evmCompatibilityTest.getTransactionGasPrice())).to.not.be.lessThan(0);
+      });
+      it("Should handle the msg keywork", async function () {
+        const valueToUse = 3;
+
+        expect(await evmCompatibilityTest.getMsgSender()).to.equal(owner.address);
+        // pass if no revert
+        await (await evmCompatibilityTest.getMsgValue(valueToUse, {value: valueToUse})).wait();
+        expect(await evmCompatibilityTest.getMsgData()).to.equal(ethers.id("getMsgData()").substring(0, 10));
+        expect(await evmCompatibilityTest.getGasleft()).to.be.greaterThan(0);
       }).timeout(1000000);
     });
-    after(async () => {
-      // send back all non used eth to the owner if not owned second account.
-      if (isSecondAccountRandom) {
-        const remainedEth = await ethers.provider.getBalance(secondAccount.address) - ethers.parseEther("0.1");
-        console.log("random user balance: ", remainedEth);
-        if (remainedEth > 0n) {
-          await (await secondAccount.sendTransaction({to: owner.address, value: remainedEth})).wait();
-          console.log("random user balance: ", await ethers.provider.getBalance(secondAccount.address));
-        }
-      }
-    });*/
+
+    describe("Hashing", function () {
+      it("Should handle keccak256", async function () {
+        const dataToHash = "let me disapear";
+        const dataBytes = ethers.toUtf8Bytes(dataToHash);
+        const hashed = ethers.keccak256(dataBytes);
+
+        expect(await evmCompatibilityTest.useKeccak256(dataBytes)).to.equal(hashed);
+      });
+      it("Should handle sha256", async function () {
+        const dataToHash = "let me disapear";
+        const dataBytes = ethers.toUtf8Bytes(dataToHash);
+        const hashed = ethers.sha256(dataBytes);
+
+        expect(await evmCompatibilityTest.useSha256(dataBytes)).to.equal(hashed);
+      });
+      it("Should handle ripemd160", async function () {
+        const dataToHash = "let me disapear";
+        const dataBytes = ethers.toUtf8Bytes(dataToHash);
+        const hashed = ethers.ripemd160(dataBytes);
+
+        expect(await evmCompatibilityTest.useRipemd160(dataBytes)).to.equal(hashed);
+      });
+    });
+
+    describe("Encoding & Decoding", function () {
+      it("Should handle encode and decode process", async function () {
+        const message = "Top secret message";
+
+        expect(await evmCompatibilityTest.encodeAndDecodeData(message)).to.equal(message);
+      });
+    });
+
+    describe("Custom type", function () {
+      it("Should add and remove a struct from a map", async function () {
+        const key =Math.floor(Math.random() * 100); // random num between 0 to 99 
+        const id = Math.floor(Math.random() * 100); // random num between 0 to 99
+        const number = Math.floor(Math.random() * 100); // random num between 0 to 99
+        const message = "Message in a struct";
+
+        // Add it
+        await (await evmCompatibilityTest.addCustomType(key, id, number, message)).wait();
+        // Retreive
+        let storedData = await evmCompatibilityTest.getCustomType(key);
+        expect(Number(storedData[0])).to.equal(id);
+        expect(Number(storedData[1])).to.equal(number);
+        expect(storedData[2]).to.equal(message);
+        // Delete
+        await (await evmCompatibilityTest.deleteCustomType(key)).wait();
+        storedData = await evmCompatibilityTest.getCustomType(key);
+        expect(Number(storedData[0])).to.equal(0);
+        expect(Number(storedData[1])).to.equal(0);
+        expect(storedData[2]).to.equal("");
+      }).timeout(1000000);
+    });
+
+    describe("Fallback system & events", function () {
+      // Test removed cause not supported on etherlink atm
+      // it("Should trigger the receive function and emit an event", async function () {
+      //   const evmCompatibilityTestAddress = await evmCompatibilityTest.getAddress();
+      //   const amountToSend = ethers.parseUnits("1", "wei");
+
+      //   const initialBalance = await ethers.provider.getBalance(evmCompatibilityTestAddress);
+      //   const receipt = await (await owner.sendTransaction({to: evmCompatibilityTestAddress, value: amountToSend})).wait();
+      //   console.log("the receipt: ", receipt);
+      //   const events = await evmCompatibilityTest.queryFilter(evmCompatibilityTest.filters.Receive, receipt?.blockNumber, receipt?.blockNumber); // mint is a transfer event
+      //   console.log("the events: ", events);
+      //   const balanceAfter = await ethers.provider.getBalance(evmCompatibilityTestAddress);
+      //   expect(events[0].args[0]).to.equal(amountToSend);
+      //   expect(balanceAfter).to.equal(initialBalance + amountToSend);
+      // }).timeout(1000000);
+      it("Should trigger the fallback function and emit an event", async function () {
+        const evmCompatibilityTestAddress = await evmCompatibilityTest.getAddress();
+        const amountToSend = ethers.parseUnits("1", "wei");
+        const dataToSend = "0x12345678"; // correspond to a random method signature
+
+        const initialBalance = await ethers.provider.getBalance(evmCompatibilityTestAddress);
+        const receipt = await (await owner.sendTransaction({data: dataToSend, to: evmCompatibilityTestAddress, value: amountToSend})).wait();
+        const events = await evmCompatibilityTest.queryFilter(evmCompatibilityTest.filters.Fallback, receipt?.blockNumber, receipt?.blockNumber); // mint is a transfer event
+        const balanceAfter = await ethers.provider.getBalance(evmCompatibilityTestAddress);
+        expect(events[0].args[0]).to.equal(amountToSend);
+        expect(balanceAfter).to.equal(initialBalance + amountToSend);
+      }).timeout(1000000);
+    });
   });
 }

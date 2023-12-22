@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-// dev: Version 1 of the tests
+/// @dev Version 1 of the tests
 contract EVMCompatibilityTest {
 
         // Constructor
@@ -131,110 +131,197 @@ contract EVMCompatibilityTest {
         delete mappings[key];
     }
     
-/*        // Control Flow
+        // Control Flow
 
-    function ifElse(bool condition) public {
+    function ifElse(bool condition) public pure returns(bool) {
         if (condition) {
             // Execute code if condition is true
+            return false;
         } else {
             // Execute code if condition is false
+            return true;
         }
     }
 
-    function loopFor(uint256 start, uint256 end) public {
-        for (uint256 i = start; i <= end; i++) {
+    function loopFor(uint256 start, uint256 end) public pure returns(uint256 counter) {
+        counter = 0;
+        for (uint256 i = start; i < end; i++) {
             // Execute code for each iteration of the loop
+            counter++;
         }
     }
 
-    function loopWhile(bool condition) public {
-        while (condition) {
+    function loopWhile(uint256 end) public pure returns(uint256 counter) {
+        uint i = 0;
+        counter = 0;
+        while (i < end) {
             // Execute code while the condition is true
+            i++;
+            counter++;
         }
-    }
-
-        // External Invocations
-
-    function callOtherContract(address contractAddress, bytes memory data) public {
-        // Invoke function of another contract
     }
 
         // Exceptions and Error Handling
 
-    function requireException() public {
+    error MyCustomError(string errorMessage);
+
+    function revertExceptionWithCustomError(string memory errorMessage) public pure {
+        revert MyCustomError(errorMessage);
     }
 
-    function assertException() public {
+    function requireException(bool shouldTrigger) public pure {
+        require(shouldTrigger == false, "Message from require");
     }
 
-    function revertException() public {
+    function assertException(bool shouldTrigger) public pure {
+        assert(shouldTrigger == false);
     }
 
+    function revertException() public pure {
+        revert("I am reverting");
+    }
 
-    function handleException() public {
+    // This should always return true
+    function handleException() public view returns(bool) {
         // Handle exceptions thrown
-    }
-
-        // Security Vulnerabilities
-
-    function reentrantCall(uint256 amount) public {
-        // Function that may lead to re-entrancy attack
-    }
-
-    function accessControl(address recipient, uint256 amount) public {
-        // Function that may exhibit access control issues
-    }
-
-    function denialOfService(uint256 duration) public {
-        // Function that may cause a denial-of-service attack
-    }
-
-        // Performance Benchmarks
-
-    function measureExecutionTime(uint256 operationCount) public view returns (uint256) {
-        // Measure execution time for a specific operation
-    }
-
-    function evaluateGasConsumption(uint256 operationCount) public view returns (uint256) {
-        // Analyze gas consumption patterns for various operations
+        try this.revertException() {
+            return false;
+        } catch {
+            return true;
+        }
     }
 
         // Global variables & builtin symbol
 
-    function getEther(uint256 amount) public {
-
+    function getEther(uint256 amount) public pure returns(uint256) {
+        return amount * 1 ether;
     }
 
-    function getGwei(uint256 amount) public {
-        
+    function getGwei(uint256 amount) public pure returns(uint256) {
+        return amount * 1 gwei;
     }
 
-    function getWei(uint256 amount) public {
+    function getWei(uint256 amount) public pure returns(uint256) {
+        return amount * 1 wei;
+    }
 
+    // block keywork
+    function getBlockNumber() public view returns(uint256) {
+        return block.number;
+    }
+
+    function getBlockTimestamp() public view returns(uint256) {
+        return block.timestamp;
+    }
+
+    function getBlockCoinbase() public view returns(address) {
+        return block.coinbase;
+    }
+
+    // Old block.difficulty
+    // Return always 0 on etherlink
+    function getBlockPrevrandao() public view returns(uint256) {
+        return block.prevrandao;
+    }
+
+    function getBlockGasLimit() public view returns(uint256) {
+        return block.gaslimit;
+    }
+
+    // ERROR ON ETHERLINK
+    // Patch inc
+    // function getBlockhash(uint blockNumber) public view returns(bytes32) {
+    //     return blockhash(blockNumber);
+    // }
+
+    // tx keyword
+    function getTransactionOrigin() public view returns(address) {
+        return tx.origin;
+    }
+
+    function getTransactionGasPrice() public view returns(uint256) {
+        return tx.gasprice;
+    }
+
+    // msg keywork
+    function getMsgSender() public view returns(address) {
+        return msg.sender;
+    }
+
+    // return nothing but revert if value send is different from parameter
+    function getMsgValue(uint256 valueToCheck) public payable {
+        require(valueToCheck == msg.value);
+    }
+
+    function getMsgData() public pure returns(bytes memory) {
+        return msg.data;
+    }
+
+    function getGasleft() public view returns(uint256) {
+        return gasleft();
     }
 
         // Hashing
 
-        // Encoding
-
-        // Decoding
-
-        // Visibility on functions
-
-
-        // Events
-
-
-        // Custom types (structs)
-
-        // Fallback system
-
-    fallback() external payable {
-        // Receive and process funds from other contracts
+    function useKeccak256(bytes memory data) public pure returns (bytes32) {
+        return keccak256(data);
     }
+
+    function useSha256(bytes memory data) public pure returns (bytes32) {
+        return sha256(data);
+    }
+
+    function useRipemd160(bytes memory data) public pure returns (bytes20) {
+        return ripemd160(data);
+    }
+
+
+        // Encoding & Decoding
+
+    function encodeAndDecodeData(string memory inputString) public pure returns (string memory) {
+        // Encode the string
+        bytes memory encoded = abi.encode(inputString);
+
+        // Decode the string
+        string memory decoded = abi.decode(encoded, (string));
+
+        // Return the decoded string
+        return decoded;
+    }
+
+        // Custom type
+
+    struct MyCustomType {
+        uint256 id;
+        uint8 number;
+        string message;
+    }
+
+    mapping(uint256 => MyCustomType) public myTypes;
+
+    function addCustomType(uint256 key, uint256 _id, uint8 _number, string memory _message) public {
+        myTypes[key] = MyCustomType(_id, _number, _message);
+    }
+
+    function getCustomType(uint256 key) public view returns(MyCustomType memory) {
+        return myTypes[key];
+    }
+
+    function deleteCustomType(uint256 key) public {
+        delete myTypes[key];
+    }
+
+
+        // Fallback system & events
+
+    event Receive(uint256 amount);
+    event Fallback(uint256 amount);
 
     receive() external payable {
-        // Receive and process funds from other contracts
+        emit Receive(msg.value);
     }
-*/
+
+    fallback() external payable {
+        emit Fallback(msg.value);
+    }
 }

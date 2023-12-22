@@ -19,6 +19,6 @@ export const universalNumber = 42;
 // No owner system, this can be used without redeploying
 export const evmCompatibilityTestAddresses: {[key: string]: string} = {
   sepolia: "",
-  mumbai: "",
-  etherlink: "0x1373d4a7a80e2c37B7D76E67DF777812C3E07C5E"
+  mumbai: "0x5C268d380232D065e59995E77F83bFa9EfBbA070",
+  etherlink: "0x8CF789C46d28139ae6CaBC34Eb22d651e691ec1C"
 }
