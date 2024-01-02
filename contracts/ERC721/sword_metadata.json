@@ -1,0 +1,46 @@
+{
+  "attributes": [
+    {
+      "trait_type": "Family",
+      "value": "Sword"
+    },
+    {
+      "trait_type": "Type",
+      "value": "None"
+    },
+    {
+      "display_type": "number",
+      "trait_type": "Level",
+      "value": 1,
+      "max_value": 100
+    },
+    {
+      "display_type": "number",
+      "trait_type": "Health Point",
+      "value": 1
+    },
+    {
+      "display_type": "number",
+      "trait_type": "Damage Point",
+      "value": 1
+    },
+    {
+      "trait_type": "Damage Type",
+      "value": "Physical"
+    },
+    {
+      "display_type": "number",
+      "trait_type": "Speed",
+      "value": 1
+    },
+    {
+      "trait_type": "Capacities",
+      "value": [
+        "None"
+      ]
+    }
+  ],
+  "description": "Imagine someone reading the description of such a lame sword.",
+  "image": "https://gateway.pinata.cloud/ipfs/QmNVM3iSFypcoB6etBKhTZt8nLDtDhiwjr9x2EkDtsna2N",
+  "name": "Basic Sword"
+}

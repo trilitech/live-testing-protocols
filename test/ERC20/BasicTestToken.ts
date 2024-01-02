@@ -155,14 +155,63 @@ if (developmentChains.includes(network.name)) {
           } else {
             // /!\ TMP IF STATEMENT /!\
             // this is actually added bc etherlink doesn't support correctly the returned data when transaction revert
-            if (network.name == "etherlink")
+            if (network.name == "etherlink") {
+              console.log("ERROR TO HANDLE FOR CORE TEAM.");
               return;
+            }
             console.log(`ERROR RECEIVED:\n ${error}\n`);
             throw new Error('Invalid error format, see log above');
           }
         }
       });
     });
+
+    describe("Burn on testnet", function () {
+      it("Should burn tokens and emit an event", async function () {
+        const AMOUNT_TO_BURN = 1n;
+
+        const initialBalance = await basicTestToken.balanceOf(owner.address);
+        if (initialBalance < AMOUNT_TO_BURN) {
+          console.log("TEST NOT RUN: mint token before running burn test");
+          throw new Error("Not enough tokens for burn test");
+        }
+        const receipt = await (await basicTestToken.burn(AMOUNT_TO_BURN)).wait();
+        const afterBurnBalance = await basicTestToken.balanceOf(owner.address);
+        const events = await basicTestToken.queryFilter(basicTestToken.filters.Transfer, receipt?.blockNumber, receipt?.blockNumber); // burn is a transfer event
+        const firstTransfer = events[0];
+
+        expect(afterBurnBalance).to.equal(initialBalance - AMOUNT_TO_BURN);
+        expect(firstTransfer.args[0]).to.equal(owner.address);
+        expect(firstTransfer.args[1]).to.equal("0x0000000000000000000000000000000000000000"); // receiver of burn is address 0x0
+        expect(firstTransfer.args[2]).to.equal(AMOUNT_TO_BURN);
+      });
+      it("Should revert something if someone burn without tokens", async function () {
+        const AMOUNT_TO_MINT = 10n;
+
+        try {
+          await (await basicTestToken.connect(secondAccount).mint(secondAccount.address, AMOUNT_TO_MINT)).wait();
+          throw new Error('Should have revert');
+        } catch (error: any) {
+          if (error.data && basicTestToken) {
+            const decodedError = basicTestToken.interface.parseError(error.data);
+            console.log("transaction failed name: ", decodedError?.name);
+            console.log("transaction failed args: ", decodedError?.args);
+            expect(decodedError?.name).to.equal("OwnableUnauthorizedAccount"); // can I access custom error properly ?
+            expect(decodedError?.args[0]).to.equal(secondAccount.address);
+          } else {
+            // /!\ TMP IF STATEMENT /!\
+            // this is actually added bc etherlink doesn't support correctly the returned data when transaction revert
+            if (network.name == "etherlink") {
+              console.log("ERROR TO HANDLE FOR CORE TEAM.");
+              return;
+            }
+            console.log(`ERROR RECEIVED:\n ${error}\n`);
+            throw new Error('Invalid error format, see log above');
+          }
+        }
+      });
+    });
+
     describe("Permit on testnet", function () {
       it("Should allow user to permit a transfer", async () => {
         const basicTestTokenSecondUser = basicTestToken.connect(secondAccount);

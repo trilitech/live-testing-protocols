@@ -22,3 +22,10 @@ export const evmCompatibilityTestAddresses: {[key: string]: string} = {
   mumbai: "0x5C268d380232D065e59995E77F83bFa9EfBbA070",
   etherlink: "0x8CF789C46d28139ae6CaBC34Eb22d651e691ec1C"
 }
+
+// Owner system, redeploy it for correct live testing
+export const basicNFTAddresses: {[key: string]: string} = {
+  sepolia: "",
+  mumbai: "0xF7C7aA8bfb97c3089356aFe4f28ccf869c20cDb6",
+  etherlink: "0xbd335d429255ab9d68cdE3843EF0546b5EA2827a"
+}

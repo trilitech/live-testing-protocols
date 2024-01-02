@@ -1,0 +1,46 @@
+{
+  "attributes": [
+    {
+      "trait_type": "Family",
+      "value": "Ring"
+    },
+    {
+      "trait_type": "Type",
+      "value": "Evil"
+    },
+    {
+      "display_type": "number",
+      "trait_type": "Level",
+      "value": 100,
+      "max_value": 100
+    },
+    {
+      "display_type": "number",
+      "trait_type": "Health Point",
+      "value": 1100
+    },
+    {
+      "display_type": "number",
+      "trait_type": "Damage Point",
+      "value": 2000
+    },
+    {
+      "trait_type": "Damage Type",
+      "value": ["Physical", "Magical"]
+    },
+    {
+      "display_type": "number",
+      "trait_type": "Speed",
+      "value": 9
+    },
+    {
+      "trait_type": "Capacities",
+      "value": [
+        "Physical strength II", "Magical strength II"
+      ]
+    }
+  ],
+  "description": "A ring to rule them all.",
+  "image": "https://sapphire-welcome-narwhal-847.mypinata.cloud/ipfs/QmXWVeRBex3oBYGXZxFaSRYZYN4uY5Hu5v1dVoxec6N3gv",
+  "name": "The One Ring"
+}
