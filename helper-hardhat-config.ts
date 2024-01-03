@@ -23,6 +23,20 @@ export const evmCompatibilityTestAddresses: {[key: string]: string} = {
   etherlink: "0x8CF789C46d28139ae6CaBC34Eb22d651e691ec1C"
 }
 
+// No owner system, this can be used without redeploying
+export const basicStorageAddresses: {[key: string]: string} = {
+  sepolia: "",
+  mumbai: "",
+  etherlink: "0x97D4c57079cfD43384bc6c291147Abe3a48eb6c5"
+}
+
+// No owner system, this can be used without redeploying
+export const chatterboxAddresses: {[key: string]: string} = {
+  sepolia: "",
+  mumbai: "",
+  etherlink: "0x5E2AB342968c8aE6370D0f53F00A3a2577ed86Ee"
+}
+
 // Owner system, redeploy it for correct live testing
 export const basicNFTAddresses: {[key: string]: string} = {
   sepolia: "",
