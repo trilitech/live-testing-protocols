@@ -21,7 +21,7 @@ const verify = async (contractAddress: string, args: any[]) => {
 export const verifyContract = async (contract: BaseContract, args: any[]) => {
   if (!developmentChains.includes(network.name)) {
     console.log("Wait before verifying");
-    await contract.deploymentTransaction()!.wait(6);
+    await contract.deploymentTransaction()?.wait(6);
     await verify(await contract.getAddress(), args);
   }
 }
