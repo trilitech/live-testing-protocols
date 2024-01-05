@@ -54,33 +54,33 @@ export const basicNFTAddresses: {[key: string]: string} = {
 
 // proxy represent the storage contract used as entrypoint that delegate call 
 // to the logic contract
-export const logicProxy: {[key: string]: string} = {
+export const logicProxyAddresses: {[key: string]: string} = {
   sepolia: "",
   mumbai: "0x4D731cdd83C4758e4Df535550F22C1119D579Afd",
-  etherlink: "0x6A64DC3eE728896A855De6a5d3519fE6961Bf844"
+  etherlink: "0xe32F2ffC5125a02AAf4D517129e4D27679E7DdC1"
 }
 
 // implementation contract or logic contract is the logic call used by the
 // proxy to execute the logic with the delegate call
 // this one is the "positive" logic
-export const logic_possitiveImplem: {[key: string]: string} = {
+export const logic_positiveImplemAddresses: {[key: string]: string} = {
   sepolia: "",
   mumbai: "0xaD7e8e6b45c60f40013FC7165CFbd99959b00ec7",
-  etherlink: "0xf1eac43942F4A50b7B3B7BDFb5670e6F1bDB550d"
+  etherlink: "0xfbaf63c940186b3FcED19b51F6b542a90FFD5245"
 }
 
 // implementation contract or logic contract is the logic call used by the
 // proxy to execute the logic with the delegate call
 // this one is the "negative" logic
-export const logic_negativeImplem: {[key: string]: string} = {
+export const logic_negativeImplemAddresses: {[key: string]: string} = {
   sepolia: "",
   mumbai: "0x4cc597Cf33991bB65b605aa4047D50c2eBb08f5E",
-  etherlink: "0xd42956D8b7de687B140dB87Ff5c3D01Ef5C3421D"
+  etherlink: "0xA5f4EdE7822640395D34f8EE975431Edc4971A7D"
 }
 
 // admin contract is the entity used in the pattern to upgrade the proxy
-export const logicAdmin: {[key: string]: string} = {
+export const logicAdminAddresses: {[key: string]: string} = {
   sepolia: "",
   mumbai: "0x535f6A39A6f9CD802dE7c41bBc53061a25d58e3E",
-  etherlink: "0x156b1Ef93eDe8f4C1f809a828945c261b4F14e35"
+  etherlink: "0x40Afe9Ad8BA3d87b61c584b5Dd0499F738154Ba6"
 }

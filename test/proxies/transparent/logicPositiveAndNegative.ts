@@ -3,11 +3,17 @@ import {
   } from "@nomicfoundation/hardhat-toolbox/network-helpers";
 import { expect } from "chai";
 import { ethers, network, upgrades } from "hardhat";
-import { developmentChains } from "../../../helper-hardhat-config";
+import { 
+  developmentChains, 
+  logicProxyAddresses, 
+  logicAdminAddresses, 
+  logic_positiveImplemAddresses, 
+  logic_negativeImplemAddresses 
+} from "../../../helper-hardhat-config";
 
 // Proxy admin data for the transparent proxy system of openzeppelin
 import ProxyAdmin from "@openzeppelin/upgrades-core/artifacts/@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol/ProxyAdmin.json";
-import { Logic_positive, Logic_negative } from "../../../typechain-types";
+import { Logic_positive, Logic_negative, ILogic } from "../../../typechain-types";
 
 if (developmentChains.includes(network.name)) {
   // ------------ Local execution testing ------------
@@ -95,6 +101,100 @@ if (developmentChains.includes(network.name)) {
 } else {
   // ------------ Live execution testing ------------
   describe("Positive & Negative Logic (live)", function () {
+    let owner: any;
+    let logicProxyAddress: string;
+    let logicProxyContract: ILogic; // use the interface to abstract version
+    let adminAddress: string;
+    let adminContract;
+    let positiveImplemAddress: string;
+    let positiveImplemContract: Logic_positive;
+    let negativeImplemAddress: string;
+    let negativeImplemContract: Logic_negative;
+    let initialVersion: string;
 
+    // Can't use fixture outside of local execution
+    before(async () => {
+      // Users part
+      [ owner ] = await ethers.getSigners();
+
+      // Retrieve the contract addresses from the helper-hardhat-config.ts file and instantiate the contracts
+      logicProxyAddress = logicProxyAddresses[network.name];
+      adminAddress = logicAdminAddresses[network.name];
+      positiveImplemAddress = logic_positiveImplemAddresses[network.name];
+      negativeImplemAddress = logic_negativeImplemAddresses[network.name];
+      if (!logicProxyAddress || !adminAddress || !positiveImplemAddress || !negativeImplemAddress) {
+        console.error("Contract address invalid.");
+        // revert the execution
+        throw new Error('Invalid contract address');
+      }
+      logicProxyContract = await ethers.getContractAt("ILogic", logicProxyAddress, owner);
+      adminContract = new ethers.Contract(adminAddress, ProxyAdmin.abi, owner);
+      positiveImplemContract = await ethers.getContractAt("Logic_positive", positiveImplemAddress, owner);
+      negativeImplemContract = await ethers.getContractAt("Logic_negative", negativeImplemAddress, owner);
+
+      // Set the version
+      initialVersion = await logicProxyContract.version();
+
+      // Check if owner is the real owner (admin) of the proxy
+      const adminOfProxy = await adminContract.owner();
+      if (adminOfProxy != owner.address) {
+        console.log("You should be the admin of the proxy for the tests. Deploy it before runing the command again.");
+        throw new Error("Can't run the tests if you're not the admin of the proxy.");
+      }
+    });
+
+    describe("Delegate calls", function () {
+      it("Should modify the value", async function () {
+        // Snaphot all the value before delegate call
+        const initialValue = await logicProxyContract.getNumber();
+        const initialValuePositiveImplem = await positiveImplemContract.getNumber();
+        const initialValueNegativeImplem = await negativeImplemContract.getNumber();
+
+        await (await logicProxyContract.modify()).wait();
+        if (initialVersion == "positive") {
+          expect(await logicProxyContract.getNumber()).to.equal(initialValue + 1n);
+          expect(await positiveImplemContract.getNumber()).to.equal(initialValuePositiveImplem);
+        }
+        else {
+          expect(await logicProxyContract.getNumber()).to.equal(initialValue - 1n);
+          expect(await negativeImplemContract.getNumber()).to.equal(initialValueNegativeImplem);
+        }
+      });
+    });
+
+    describe("Upgrade", function () {
+      it("Should upgrade and after modify the value", async function () {
+        // Snaphot all the value before upgrade and delegate call
+        const initialValue = await logicProxyContract.getNumber();
+        const initialValuePositiveImplem = await positiveImplemContract.getNumber();
+        const initialValueNegativeImplem = await negativeImplemContract.getNumber();
+
+        // Upgrade process and check the version changed + no value modification
+        if (initialVersion == "positive") {
+          const Logic_negative = await ethers.getContractFactory("Logic_negative");
+          await (await upgrades.upgradeProxy(logicProxyAddress, Logic_negative)).waitForDeployment();
+          expect(await logicProxyContract.version()).to.equal("negative");
+        } else {
+          const Logic_positive = await ethers.getContractFactory("Logic_positive");
+          await (await upgrades.upgradeProxy(logicProxyAddress, Logic_positive)).waitForDeployment();
+          expect(await logicProxyContract.version()).to.equal("positive");
+        }
+        expect(await logicProxyContract.getNumber()).to.equal(initialValue);
+        expect(await positiveImplemContract.getNumber()).to.equal(initialValuePositiveImplem);
+        expect(await negativeImplemContract.getNumber()).to.equal(initialValueNegativeImplem);
+
+        // Modify and check the result
+        await (await logicProxyContract.modify()).wait();
+        // Now the version should be the opposite from the initial
+        if (initialVersion == "positive") {
+          expect(await logicProxyContract.getNumber()).to.equal(initialValue - 1n);
+          expect(await negativeImplemContract.getNumber()).to.equal(initialValueNegativeImplem);
+        }
+        else {
+          expect(await logicProxyContract.getNumber()).to.equal(initialValue + 1n);
+          expect(await positiveImplemContract.getNumber()).to.equal(initialValuePositiveImplem);
+        }
+      }).timeout(1000000);
+    });
   });
 }

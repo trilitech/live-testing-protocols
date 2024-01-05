@@ -1,11 +1,11 @@
 import { ethers, upgrades, network } from "hardhat";
 import { verifyContract } from "../../utils/verify";
-import { logicProxy } from "../../../helper-hardhat-config";
+import { logicProxyAddresses } from "../../../helper-hardhat-config";
 
 // The hardhat plugin should track all the upgrade and use the already deployed contract
 // to deploy each version only one time and then only swtich target.
 async function main() {
-  const proxyAddress = logicProxy[network.name];
+  const proxyAddress = logicProxyAddresses[network.name];
   const Logic_negative = await ethers.getContractFactory("Logic_negative");
 
   // Check if proxy address is valid
