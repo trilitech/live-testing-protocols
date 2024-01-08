@@ -155,7 +155,7 @@ if (developmentChains.includes(network.name)) {
           } else {
             // /!\ TMP IF STATEMENT /!\
             // this is actually added bc etherlink doesn't support correctly the returned data when transaction revert
-            if (network.name == "etherlink") {
+            if (network.name == "etherlink" || network.name == "nightly") {
               console.log("ERROR TO HANDLE FOR CORE TEAM.");
               return;
             }
@@ -201,7 +201,7 @@ if (developmentChains.includes(network.name)) {
           } else {
             // /!\ TMP IF STATEMENT /!\
             // this is actually added bc etherlink doesn't support correctly the returned data when transaction revert
-            if (network.name == "etherlink") {
+            if (network.name == "etherlink" || network.name == "nightly") {
               console.log("ERROR TO HANDLE FOR CORE TEAM.");
               return;
             }

@@ -601,8 +601,8 @@ if (developmentChains.includes(network.name)) {
             expect(decodedError?.name).to.equal("Panic");
           } else {
             // /!\ PROBLEM TO HANDLE WITH CORE TEAM /!\
-            if (network.name == "etherlink") {
-              console.log("protection for etherlink, problem to handle")
+            if (network.name == "etherlink" || network.name == "nightly") {
+              console.log("protection for etherlink (and nightly), problem to handle")
               return;
             }
             console.log(error);
@@ -635,8 +635,8 @@ if (developmentChains.includes(network.name)) {
             expect(decodedError?.name).to.equal("Panic");
           } else {
             // /!\ PROBLEM TO HANDLE WITH CORE TEAM /!\
-            if (network.name == "etherlink") {
-              console.log("protection for etherlink, problem to handle")
+            if (network.name == "etherlink" || network.name == "nightly") {
+              console.log("protection for etherlink (and nightly), problem to handle")
               return;
             }
             console.log(error);
@@ -676,8 +676,8 @@ if (developmentChains.includes(network.name)) {
             expect(decodedError?.name).to.equal("Panic");
           } else {
             // /!\ PROBLEM TO HANDLE WITH CORE TEAM /!\
-            if (network.name == "etherlink") {
-              console.log("protection for etherlink, problem to handle")
+            if (network.name == "etherlink" || network.name == "nightly") {
+              console.log("protection for etherlink (and nightly), problem to handle")
               return;
             }
             console.log(error);
@@ -875,8 +875,8 @@ if (developmentChains.includes(network.name)) {
             expect(decodedError?.args[0]).to.equal(errorMessage);
           } else {
             // /!\ PROBLEM TO HANDLE WITH CORE TEAM /!\
-            if (network.name == "etherlink") {
-              console.log("protection for etherlink, problem to handle")
+            if (network.name == "etherlink" || network.name == "nightly") {
+              console.log("protection for etherlink (and nightly), problem to handle")
               return;
             }
             console.log(error);
@@ -900,8 +900,8 @@ if (developmentChains.includes(network.name)) {
             expect(decodedError?.args[0]).to.equal("Message from require");
           } else {
             // /!\ PROBLEM TO HANDLE WITH CORE TEAM /!\
-            if (network.name == "etherlink") {
-              console.log("protection for etherlink, problem to handle")
+            if (network.name == "etherlink" || network.name == "nightly") {
+              console.log("protection for etherlink (and nightly), problem to handle")
               return;
             }
             console.log(error);
@@ -924,8 +924,8 @@ if (developmentChains.includes(network.name)) {
             expect(decodedError?.name).to.equal("Panic");
           } else {
             // /!\ PROBLEM TO HANDLE WITH CORE TEAM /!\
-            if (network.name == "etherlink") {
-              console.log("protection for etherlink, problem to handle")
+            if (network.name == "etherlink" || network.name == "nightly") {
+              console.log("protection for etherlink (and nightly), problem to handle")
               return;
             }
             console.log(error);
@@ -946,8 +946,8 @@ if (developmentChains.includes(network.name)) {
             expect(decodedError?.args[0]).to.equal("I am reverting");
           } else {
             // /!\ PROBLEM TO HANDLE WITH CORE TEAM /!\
-            if (network.name == "etherlink") {
-              console.log("protection for etherlink, problem to handle")
+            if (network.name == "etherlink" || network.name == "nightly") {
+              console.log("protection for etherlink (and nightly), problem to handle")
               return;
             }
             console.log(error);
@@ -974,19 +974,20 @@ if (developmentChains.includes(network.name)) {
       });
       it("Should handle the block keywork", async function () {
         expect(await evmCompatibilityTest.getBlockNumber()).to.not.be.lessThan(0);
-        expect(await evmCompatibilityTest.getBlockTimestamp()).to.not.equal(0);
+        expect(await evmCompatibilityTest.getBlockTimestamp()).to.not.equal(0); // error on nightly ?
         // there are no miner in etherlink
-        if (network.name == "etherlink") {
+        if (network.name == "etherlink" || network.name == "nightly") {
           expect(await evmCompatibilityTest.getBlockCoinbase()).to.equal("0x0000000000000000000000000000000000000000");
         } else {
           expect(await evmCompatibilityTest.getBlockCoinbase()).to.not.equal("0x0000000000000000000000000000000000000000");
         }
         // return always 0 on etherlink (EIP-4399 not supported)
-        if (network.name == "etherlink") {
+        if (network.name == "etherlink" || network.name == "nightly") {
           expect(Number(await evmCompatibilityTest.getBlockPrevrandao())).to.equal(0);
         } else {
-          expect(Number(await evmCompatibilityTest.getBlockGasLimit())).to.not.equal(0);
+          expect(Number(await evmCompatibilityTest.getBlockPrevrandao())).to.not.equal(0);
         }
+        expect(Number(await evmCompatibilityTest.getBlockGasLimit())).to.not.equal(0);
         // Test removed cause not supported on etherlink atm
         // expect(await evmCompatibilityTest.getBlockhash(1)).to.not.equal("0x0000000000000000000000000000000000000000000000000000000000000000");
       });

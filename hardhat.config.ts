@@ -28,6 +28,9 @@ const ETHERLINK_RPC_URL =
 const ETHERLINK_API_KEY = 
   process.env.ETHERLINK_API_KEY || 
   "";
+const NIGHTLY_RPC_URL =
+  process.env.NIGHTLY_RPC_URL ||
+  "";
 
 const config: HardhatUserConfig = {
   solidity: "0.8.20",
@@ -54,6 +57,11 @@ const config: HardhatUserConfig = {
       chainId: 128123,
       url: ETHERLINK_RPC_URL,
       accounts: [PRIVATE_KEY, SECOND_PRIVATE_KEY],
+    },
+    nightly: {
+      chainId: 20240104,
+      url: NIGHTLY_RPC_URL,
+      accounts: [PRIVATE_KEY, SECOND_PRIVATE_KEY]
     }
   },
   etherscan: {
@@ -61,16 +69,25 @@ const config: HardhatUserConfig = {
       sepolia: ETHERSCAN_API_KEY,
       polygonMumbai: POLYGONSCAN_API_KEY,
       etherlink: ETHERLINK_API_KEY,
+      nightly: ETHERLINK_API_KEY
     },
     customChains: [
       {
         network: "etherlink",
         chainId: 128123,
         urls: {
-          apiURL: "https://explorer.etherlink.com/api",
-          // apiURL: "https://testnet-explorer.etherlink.com/api",
-          browserURL: "https://explorer.etherlink.com"
-          // browserURL: "https://testnet-explorer.etherlink.com"
+          // apiURL: "https://explorer.etherlink.com/api",
+          apiURL: "https://testnet-explorer.etherlink.com/api",
+          // browserURL: "https://explorer.etherlink.com"
+          browserURL: "https://testnet-explorer.etherlink.com"
+        }
+      },
+      {
+        network: "nightly",
+        chainId: 20240104,
+        urls: {
+          apiURL: "https://explorer.2024-01-04.etherlink-nightly.tzalpha.net/api",
+          browserURL: "https://explorer.2024-01-04.etherlink-nightly.tzalpha.net"
         }
       }
     ]
