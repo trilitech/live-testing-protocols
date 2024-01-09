@@ -1,6 +1,14 @@
 // local chains
 export const developmentChains = ["hardhat", "localhost"];
 
+// number of blocks for confirmation
+export const blockConfirmation: {[key: string]: number} = {
+  sepolia: 6,
+  mumbai: 6,
+  etherlink: 6,
+  nightly: 6
+}
+
 // Add here the network (chain) name and address you deployed the contract
 export const myContract: {[key: string]: string} = {
   sepolia: "",

@@ -2,6 +2,8 @@ import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
 import "@openzeppelin/hardhat-upgrades";
 import "dotenv/config";
+import "hardhat-deploy";
+import "hardhat-deploy-ethers";
 
 const PRIVATE_KEY =
   process.env.PRIVATE_KEY ||
@@ -62,6 +64,15 @@ const config: HardhatUserConfig = {
       chainId: 20240104,
       url: NIGHTLY_RPC_URL,
       accounts: [PRIVATE_KEY, SECOND_PRIVATE_KEY]
+    }
+  },
+  // hardhat-deploy named account system
+  namedAccounts: {
+    deployer: {
+      default: 0, // Deployer will be the first private key above
+    },
+    assistant: {
+      default: 1, // Assistant will be the second private key above
     }
   },
   etherscan: {

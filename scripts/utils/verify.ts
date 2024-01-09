@@ -2,7 +2,7 @@ import { network, run } from "hardhat";
 import { BaseContract } from "ethers";
 import { developmentChains } from "../../helper-hardhat-config";
 
-const verify = async (contractAddress: string, args: any[]) => {
+export const verify = async (contractAddress: string, args: any[]) => {
   console.log("Verifying contract...");
   try {
     await run("verify:verify", {
