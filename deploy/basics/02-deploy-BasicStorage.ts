@@ -1,9 +1,9 @@
 import { DeployFunction } from "hardhat-deploy/dist/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { blockConfirmation, developmentChains, universalNumber } from "../../helper-hardhat-config";
+import { blockConfirmation, developmentChains } from "../../helper-hardhat-config";
 import { verify } from "../../scripts/utils/verify";
 
-const deployEVMCompatibilityTest: DeployFunction = async function(
+const deployBasicStorage: DeployFunction = async function(
   hre: HardhatRuntimeEnvironment
 ) {
   const { getNamedAccounts, deployments, network } = hre;
@@ -11,10 +11,10 @@ const deployEVMCompatibilityTest: DeployFunction = async function(
   const { deployer } = await getNamedAccounts();
 
   log("----------------------------------------------------");
-  log("Deploying EVMCompatibilityTest and waiting for confirmations...");
-  const evmCompatibilityTest = await deploy("EVMCompatibilityTest", {
+  log("Deploying BasicStorage and waiting for confirmations...");
+  const basicStorage = await deploy("BasicStorage", {
     from: deployer,
-    args: [universalNumber],
+    args: [],
     log: true,
     // we need to wait if on a live network so we can verify properly
     waitConfirmations: blockConfirmation[network.name] || 1,
@@ -23,9 +23,9 @@ const deployEVMCompatibilityTest: DeployFunction = async function(
   // verify if not on a local chain
   if (!developmentChains.includes(network.name)) {
     console.log("Wait before verifying");
-    await verify(evmCompatibilityTest.address, [universalNumber]);
+    await verify(basicStorage.address, []);
   }
 };
 
-export default deployEVMCompatibilityTest;
-deployEVMCompatibilityTest.tags = ["all", "basics", "EVMCompatibilityTest"];
+export default deployBasicStorage;
+deployBasicStorage.tags = ["all", "basics", "BasicStorage"];

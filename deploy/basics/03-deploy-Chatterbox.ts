@@ -2,8 +2,9 @@ import { DeployFunction } from "hardhat-deploy/dist/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { blockConfirmation, developmentChains, universalNumber } from "../../helper-hardhat-config";
 import { verify } from "../../scripts/utils/verify";
+import { ethers } from "hardhat";
 
-const deployEVMCompatibilityTest: DeployFunction = async function(
+const deployChatterbox: DeployFunction = async function(
   hre: HardhatRuntimeEnvironment
 ) {
   const { getNamedAccounts, deployments, network } = hre;
@@ -11,21 +12,28 @@ const deployEVMCompatibilityTest: DeployFunction = async function(
   const { deployer } = await getNamedAccounts();
 
   log("----------------------------------------------------");
-  log("Deploying EVMCompatibilityTest and waiting for confirmations...");
-  const evmCompatibilityTest = await deploy("EVMCompatibilityTest", {
+//   const basicStorageAddress = await (await ethers.getContract("BasicStorage")).getAddress();
+  const basicStorageAddress = (await deployments.get('BasicStorage')).address;
+  if (!basicStorageAddress) {
+    console.error("Error: No basic storage contract available, first deploy one beffor deploying chatterbox.");
+    return;
+  }
+  log("Deploying Chatterbox and waiting for confirmations...");
+  const chatterbox = await deploy("Chatterbox", {
     from: deployer,
-    args: [universalNumber],
+    args: [basicStorageAddress],
     log: true,
     // we need to wait if on a live network so we can verify properly
     waitConfirmations: blockConfirmation[network.name] || 1,
   });
-
+  
   // verify if not on a local chain
   if (!developmentChains.includes(network.name)) {
     console.log("Wait before verifying");
-    await verify(evmCompatibilityTest.address, [universalNumber]);
+    await verify(chatterbox.address, [basicStorageAddress]);
   }
 };
 
-export default deployEVMCompatibilityTest;
-deployEVMCompatibilityTest.tags = ["all", "basics", "EVMCompatibilityTest"];
+export default deployChatterbox;
+deployChatterbox.tags = ["all", "basics", "Chatterbox"];
+deployChatterbox.dependencies = ["BasicStorage"]

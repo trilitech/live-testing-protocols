@@ -1,8 +1,11 @@
 import { deployments, ethers, network } from "hardhat";
 import { expect } from "chai";
 import { EVMCompatibilityTest } from "../../typechain-types";
+import { developmentChains } from "../../helper-hardhat-config";
 
 const setup = deployments.createFixture(async ({deployments, getNamedAccounts, ethers}, options) => {
+  if (developmentChains.includes(network.name))
+    await deployments.fixture(); // ensure you start from a fresh deployments
   const { deployer } = await getNamedAccounts();
   const evmCompatibilityTest = await ethers.getContract('EVMCompatibilityTest', deployer) as EVMCompatibilityTest;
   const KEY_STORAGE = ethers.keccak256(ethers.toUtf8Bytes("Here we go again"));

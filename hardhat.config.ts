@@ -33,6 +33,10 @@ const ETHERLINK_API_KEY =
 const NIGHTLY_RPC_URL =
   process.env.NIGHTLY_RPC_URL ||
   "";
+// Specific private key for the nightly chain with founds
+const NIGHTLY_PRIVATE_KEY =
+  process.env.NIGHTLY_PRIVATE_KEY ||
+  "";
 
 const config: HardhatUserConfig = {
   solidity: "0.8.20",
@@ -61,9 +65,9 @@ const config: HardhatUserConfig = {
       accounts: [PRIVATE_KEY, SECOND_PRIVATE_KEY],
     },
     nightly: {
-      chainId: 20240104,
+      chainId: 20240109,
       url: NIGHTLY_RPC_URL,
-      accounts: [PRIVATE_KEY, SECOND_PRIVATE_KEY]
+      accounts: [NIGHTLY_PRIVATE_KEY, PRIVATE_KEY]
     }
   },
   // hardhat-deploy named account system
@@ -95,10 +99,10 @@ const config: HardhatUserConfig = {
       },
       {
         network: "nightly",
-        chainId: 20240104,
+        chainId: 20240109,
         urls: {
-          apiURL: "https://explorer.2024-01-04.etherlink-nightly.tzalpha.net/api",
-          browserURL: "https://explorer.2024-01-04.etherlink-nightly.tzalpha.net"
+          apiURL: "https://explorer.2024-01-09.etherlink-nightly.tzalpha.net/api",
+          browserURL: "https://explorer.2024-01-09.etherlink-nightly.tzalpha.net"
         }
       }
     ]
