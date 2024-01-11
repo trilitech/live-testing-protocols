@@ -1,8 +1,7 @@
 import { DeployFunction } from "hardhat-deploy/dist/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { blockConfirmation, developmentChains, universalNumber } from "../../helper-hardhat-config";
+import { blockConfirmation, developmentChains } from "../../helper-hardhat-config";
 import { verify } from "../../scripts/utils/verify";
-import { ethers } from "hardhat";
 
 const deployChatterbox: DeployFunction = async function(
   hre: HardhatRuntimeEnvironment
