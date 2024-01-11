@@ -1,9 +1,10 @@
 import { ethers, upgrades } from "hardhat";
 import { verifyContract } from "../../utils/verify";
+import { universalNumber } from "../../../helper-hardhat-config";
 
 async function main() {
   const Logic_positive = await ethers.getContractFactory("Logic_positive");
-  const logic_positive = await upgrades.deployProxy(Logic_positive, [42], { initializer: 'initalValue'});
+  const logic_positive = await upgrades.deployProxy(Logic_positive, [universalNumber], { initializer: 'initalValue'});
   await logic_positive.waitForDeployment();
   const proxyAddress = await logic_positive.getAddress();
   const implemAddress = await upgrades.erc1967.getImplementationAddress(proxyAddress);

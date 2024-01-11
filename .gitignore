@@ -17,3 +17,7 @@ node_modules
 
 # Openzeppelin files
 .openzeppelin
+
+# deployments
+# comment this if you want to push your deployment data
+deployments
