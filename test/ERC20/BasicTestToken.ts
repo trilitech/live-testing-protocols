@@ -28,7 +28,7 @@ describe('BasicTestToken', () => {
     const [ owner, assistant ] = await ethers.getSigners();
     // check if second account have enought token for gas
     const assistantBalance = await ethers.provider.getBalance(await assistant.getAddress());
-    if (assistantBalance < 1n * 10n ** 18n) {
+    if (assistantBalance < ethers.parseEther("1.0")) {
       console.log("Assistant not has enough tokens, sending some...");
       await (await owner.sendTransaction({to: assistant, value: ethers.parseEther("1.0")})).wait(); // send token
     }
