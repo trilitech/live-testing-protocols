@@ -26,7 +26,9 @@ POLYGONSCAN_API_KEY=<polyscan-api-key>
 ETHERLINK_RPC_URL=https://node.ghostnet.etherlink.com
 ETHERLINK_API_KEY=YOUCANCOPYME0000000000000000000000
 
-NIGHTLY_RPC_URL=https://node.2024-01-09.etherlink-nightly.tzalpha.net
+NIGHTLY_RPC_URL=https://node.<deployment-date>.etherlink-nightly.tzalpha.net/
+NIGHTLY_EXPLORER=https://explorer.<deployment-date>.etherlink-nightly.tzalpha.net/
+NIGHTLY_CHAINID=<deployment-date>
 NIGHTLY_PRIVATE_KEY=<nightly-private-key>
 ```
 
@@ -35,6 +37,8 @@ This is recommended to add 2 private keys because some tests use 2 accounts (but
 All the RPC URLs are **optional**, you can add or remove them as you want depending on which chain you want to support.
 
 Etherscan and Polygonscan API keys are also **optional**, if you don't want to verify your contracts, you don't need to add them.
+
+**IMPORTANT:** the Nightly version is reset each week so remember to keep the RPC url, explorer url and chain id updated in the `.env` file. The `/` at the end of the `NIGHTLY_EXPLORER` is important!
 
 All the configuration is in the `hardhat.config.ts`, if you need more information, read the hardhat doc linked above.
 
