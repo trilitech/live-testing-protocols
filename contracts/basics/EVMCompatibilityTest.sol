@@ -228,11 +228,9 @@ contract EVMCompatibilityTest {
         return block.gaslimit;
     }
 
-    // ERROR ON ETHERLINK
-    // Patch inc
-    // function getBlockhash(uint blockNumber) public view returns(bytes32) {
-    //     return blockhash(blockNumber);
-    // }
+    function getBlockhash(uint blockNumber) public view returns(bytes32) {
+        return blockhash(blockNumber);
+    }
 
     // tx keyword
     function getTransactionOrigin() public view returns(address) {

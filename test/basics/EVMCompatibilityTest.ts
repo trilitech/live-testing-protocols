@@ -466,7 +466,7 @@ describe('EVMComptaibilityTest', () => {
       }
       expect(Number(await evmCompatibilityTest.getBlockGasLimit())).to.not.equal(0);
       // Test removed cause not supported on etherlink atm
-      // expect(await evmCompatibilityTest.getBlockhash(1)).to.not.equal("0x0000000000000000000000000000000000000000000000000000000000000000");
+      expect(await evmCompatibilityTest.getBlockhash(1)).to.not.equal("0x0000000000000000000000000000000000000000000000000000000000000000");
     });
     it("Should handle the tx keywork", async function () {
       const { evmCompatibilityTest, deployer } = await setup();
@@ -548,20 +548,21 @@ describe('EVMComptaibilityTest', () => {
 
   describe("Fallback system & events", function () {
     // Test removed cause not supported on etherlink atm
-    // it("Should trigger the receive function and emit an event", async function () {
-    //   const { evmCompatibilityTest } = await setup();
-    //   const evmCompatibilityTestAddress = await evmCompatibilityTest.getAddress();
-    //   const amountToSend = ethers.parseUnits("1", "wei");
+    it("Should trigger the receive function and emit an event", async function () {
+      const { evmCompatibilityTest } = await setup();
+      const evmCompatibilityTestAddress = await evmCompatibilityTest.getAddress();
+      const amountToSend = ethers.parseUnits("1", "wei");
+      const [ owner ] = await ethers.getSigners(); // take the first account from the config
 
-    //   const initialBalance = await ethers.provider.getBalance(evmCompatibilityTestAddress);
-    //   const receipt = await (await owner.sendTransaction({to: evmCompatibilityTestAddress, value: amountToSend})).wait();
-    //   console.log("the receipt: ", receipt);
-    //   const events = await evmCompatibilityTest.queryFilter(evmCompatibilityTest.filters.Receive, receipt?.blockNumber, receipt?.blockNumber); // mint is a transfer event
-    //   console.log("the events: ", events);
-    //   const balanceAfter = await ethers.provider.getBalance(evmCompatibilityTestAddress);
-    //   expect(events[0].args[0]).to.equal(amountToSend);
-    //   expect(balanceAfter).to.equal(initialBalance + amountToSend);
-    // }).timeout(1000000);
+      const initialBalance = await ethers.provider.getBalance(evmCompatibilityTestAddress);
+      const receipt = await (await owner.sendTransaction({to: evmCompatibilityTestAddress, value: amountToSend})).wait();
+      // console.log("the receipt: ", receipt);
+      const events = await evmCompatibilityTest.queryFilter(evmCompatibilityTest.filters.Receive, receipt?.blockNumber, receipt?.blockNumber); // mint is a transfer event
+      // console.log("the events: ", events);
+      const balanceAfter = await ethers.provider.getBalance(evmCompatibilityTestAddress);
+      expect(events[0].args[0]).to.equal(amountToSend);
+      expect(balanceAfter).to.equal(initialBalance + amountToSend);
+    }).timeout(1000000);
     it("Should trigger the fallback function and emit an event", async function () {
       const { evmCompatibilityTest } = await setup();
       const evmCompatibilityTestAddress = await evmCompatibilityTest.getAddress();
