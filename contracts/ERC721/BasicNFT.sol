@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract BasicNFT is ERC721, ERC721URIStorage, ERC721Burnable, Ownable {
-    uint256 private _nextTokenId;
+    uint256 public _nextTokenId; // set in public to facilitate tests
 
     constructor(address initialOwner)
         ERC721("BasicNFT", "BNFT")

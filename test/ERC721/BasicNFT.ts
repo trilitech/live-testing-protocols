@@ -35,5 +35,45 @@ describe('BasicNFT', () => {
       expect(firstTransfer.args[1]).to.equal(deployer);
     }).timeout(1000000);      
   });
+
+  describe("Interact", function () {
+    it("Should transfer a token and emit an event", async function () {
+      const { deployer, assistant, basicNFTDeployer, URI } = await setup();
+      let lastTokenId = Number(await basicNFTDeployer._nextTokenId());
+
+      // No NFT minted
+      if (lastTokenId == 0) {
+        // Mint a new NFT before the transfer
+        await (await basicNFTDeployer.safeMint(deployer, URI)).wait();
+      } else {
+        lastTokenId--;
+        // Check if last token minted is owned by deployer
+        if (await basicNFTDeployer.ownerOf(lastTokenId) != deployer) {
+        // Mint a new NFT before the transfer
+          await (await basicNFTDeployer.safeMint(deployer, URI)).wait();
+          lastTokenId++;
+        }
+      }
+
+      // Test the transfer
+      const initialBalanceDeployer = await basicNFTDeployer.balanceOf(deployer);
+      const initialBalanceAssistant = await basicNFTDeployer.balanceOf(assistant);
+      const receipt = await (await basicNFTDeployer.transferFrom(deployer, assistant, lastTokenId)).wait();
+      const afterMintBalanceDeployer = await basicNFTDeployer.balanceOf(deployer);
+      const afterMintBalanceAssistant = await basicNFTDeployer.balanceOf(assistant);
+      const events = await basicNFTDeployer.queryFilter(basicNFTDeployer.filters.Transfer, receipt?.blockNumber, receipt?.blockNumber);
+      const transferEvent = events[0];
+
+      // Check balance
+      expect(afterMintBalanceDeployer).to.equal(initialBalanceDeployer - 1n);
+      expect(afterMintBalanceAssistant).to.equal(initialBalanceAssistant + 1n);
+      // Check creation event
+      expect(transferEvent.args[0]).to.equal(deployer); // origin
+      expect(transferEvent.args[1]).to.equal(assistant); // to
+      expect(transferEvent.args[2]).to.equal(lastTokenId); // token id
+      // Check owner
+      expect(await basicNFTDeployer.ownerOf(lastTokenId)).to.equal(assistant);
+    }).timeout(1000000);      
+  });
 });
 
