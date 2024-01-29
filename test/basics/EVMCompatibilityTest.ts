@@ -102,8 +102,8 @@ describe('EVMComptaibilityTest', () => {
     });
     it("Should divide two numbers", async function () {
       const { evmCompatibilityTest } = await setup();
-      const firstNumber = Math.floor(Math.random() * 100); // random num between 0 to 99
-      const secondNumber = Math.floor(Math.random() * 100); // random num between 0 to 99
+      const firstNumber = Math.floor(Math.random() * 100) + 1; // random num between 1 to 100
+      const secondNumber = Math.floor(Math.random() * 100) + 1; // random num between 1 to 100
       const result = firstNumber > secondNumber ? Math.floor(firstNumber / secondNumber) : Math.floor(secondNumber / firstNumber);
 
       const resultFromContract = firstNumber > secondNumber ? 
@@ -468,7 +468,7 @@ describe('EVMComptaibilityTest', () => {
         expect(Number(await evmCompatibilityTest.getBlockPrevrandao())).to.not.equal(0);
       }
       expect(Number(await evmCompatibilityTest.getBlockGasLimit())).to.not.equal(0);
-      // Test removed cause not supported on etherlink atm
+      // Test removed cause not supported on etherlink atm -> see if targeting block 1 is ok
       expect(await evmCompatibilityTest.getBlockhash(1)).to.not.equal("0x0000000000000000000000000000000000000000000000000000000000000000");
     });
     it("Should handle the tx keywork", async function () {
