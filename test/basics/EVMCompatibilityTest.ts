@@ -116,6 +116,7 @@ describe('EVMComptaibilityTest', () => {
       const firstNumber = Math.floor(Math.random() * 100); // random num between 0 to 99
       const secondNumber = 0;
 
+      // Will always revert because / by 0
       try {
         await evmCompatibilityTest.divide(firstNumber, secondNumber);
         throw new Error("Should have revert for underflow");
@@ -243,6 +244,7 @@ describe('EVMComptaibilityTest', () => {
     it("Should set the value in storage", async function () {
       const { evmCompatibilityTest, KEY_STORAGE, VALUE_STORED } = await setup();
 
+      // Store VALUE_STORED in the storage KEY_STORAGE
       await (await evmCompatibilityTest.store(KEY_STORAGE, VALUE_STORED)).wait();
       const storedValue = await evmCompatibilityTest.read(KEY_STORAGE);
       expect(storedValue).to.equal(VALUE_STORED);
@@ -250,6 +252,7 @@ describe('EVMComptaibilityTest', () => {
     it("Should remove the value in storage", async function () {
       const { evmCompatibilityTest, KEY_STORAGE } = await setup();
 
+      // Remove from VALUE_STORED from the storage KEY_STORAGE
       await (await evmCompatibilityTest.remove(KEY_STORAGE)).wait();
       const storedValue = await evmCompatibilityTest.read(KEY_STORAGE);
       expect(storedValue).to.equal(0);
@@ -281,12 +284,12 @@ describe('EVMComptaibilityTest', () => {
       // Set in map
       await (await evmCompatibilityTest.setMapElement(MAP[0].key, MAP[0].value)).wait();
       await (await evmCompatibilityTest.setMapElement(MAP[1].key, MAP[1].value)).wait();
-      // Get in array
+      // Get in map
       let firstStoredValue = await evmCompatibilityTest.getMapElement(MAP[0].key);
       let secondStoredValue = await evmCompatibilityTest.getMapElement(MAP[1].key);
       expect(Number(firstStoredValue)).to.equal(MAP[0].value);
       expect(Number(secondStoredValue)).to.equal(MAP[1].value);
-      // Delete in array
+      // Delete in map
       await (await evmCompatibilityTest.deleteMapElement(MAP[0].key)).wait();
       await (await evmCompatibilityTest.deleteMapElement(MAP[1].key)).wait();
       firstStoredValue = await evmCompatibilityTest.getMapElement(MAP[0].key);

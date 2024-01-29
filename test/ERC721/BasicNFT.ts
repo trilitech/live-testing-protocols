@@ -10,6 +10,7 @@ const setup = deployments.createFixture(async ({deployments, getNamedAccounts, e
   if (!assistant)
     throw new Error("Error: You should add a second user if you want to test BasicNFT");
   const basicNFTDeployer = await ethers.getContract('BasicNFT', deployer) as BasicNFT;
+  // Valide json for metadata pinned on Pinata IPFS
   const URI = "https://sapphire-welcome-narwhal-847.mypinata.cloud/ipfs/QmaDPgesExosWFXSw3kDHjo5Uermh13EeQK27oCxAG5r1x"; // sword
   // const URI = "https://sapphire-welcome-narwhal-847.mypinata.cloud/ipfs/QmYsaYw2MKZHwAMzPmdqnG3DG9Qp6oNMEnsFQJsH7dWYHD"; // One Ring
 
@@ -27,7 +28,9 @@ describe('BasicNFT', () => {
       const events = await basicNFTDeployer.queryFilter(basicNFTDeployer.filters.Transfer, receipt?.blockNumber, receipt?.blockNumber); // mint is a transfer event
       const firstTransfer = events[0];
 
+      // Check balance
       expect(afterMintBalance).to.equal(initialBalance + 1n);
+      // Check creation event
       expect(firstTransfer.args[0]).to.equal("0x0000000000000000000000000000000000000000"); // origin of mint is address 0x0
       expect(firstTransfer.args[1]).to.equal(deployer);
     }).timeout(1000000);      
