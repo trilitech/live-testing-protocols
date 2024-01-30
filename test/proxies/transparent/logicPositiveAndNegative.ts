@@ -61,6 +61,9 @@ describe('Logic (transparent proxy)', () => {
         // waitConfirmations: blockConfirmation[network.name] || 1,
       });
 
+      // Check proxy storage didn't change after upgrade
+      expect(await logicProxy.getNumber()).to.equal(initialValue);
+
       // Check new version
       const newVersion = await logicProxy.version();
       expect(newVersion).to.equal(oldVersion == "positive" ? "negative" : "positive");
