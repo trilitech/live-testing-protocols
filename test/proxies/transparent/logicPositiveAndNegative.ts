@@ -18,7 +18,7 @@ describe('Logic (transparent proxy)', () => {
   describe("Delegate calls", function () {
     it("Should modify the value", async function () {
       const { logicProxy, logicImplem } = await setup();
-      // Snaphot all the value before delegate call
+      // Snaphot all the values before delegate call
       const initialValue = await logicProxy.getNumber();
       const initialValueImplem = await logicImplem.getNumber();
 
@@ -38,7 +38,7 @@ describe('Logic (transparent proxy)', () => {
   describe("Upgrade", function () {
     it("Should upgrade the version and modify with the new one", async function () {
       const { deployer, deploy, logicProxy } = await setup();
-      // Snaphot all the value before the upgrade and delegate call
+      // Snaphot all the values before the upgrade and delegate call
       const initialValue = await logicProxy.getNumber();
       const oldVersion = await logicProxy.version();
     

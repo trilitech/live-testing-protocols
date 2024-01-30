@@ -31,6 +31,7 @@ const deployLogic: DeployFunction = async function(
           args: [42]
         }
       },
+      // Specify the transparent proxy pattern from Openzeppelin
       proxyContract: "OpenZeppelinTransparentProxy",
     },
     log: true,
