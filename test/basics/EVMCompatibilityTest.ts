@@ -343,11 +343,6 @@ describe('EVMComptaibilityTest', () => {
           expect(decodedError?.name).to.equal("MyCustomError");
           expect(decodedError?.args[0]).to.equal(errorMessage);
         } else {
-          // /!\ PROBLEM TO HANDLE WITH CORE TEAM /!\
-          if (network.name == "etherlink" || network.name == "nightly") {
-            console.log("protection for etherlink (and nightly), problem to handle")
-            return;
-          }
           console.log(error);
           throw new Error("An unexpected error occured");
         }
@@ -370,11 +365,6 @@ describe('EVMComptaibilityTest', () => {
           expect(decodedError?.name).to.equal("Error");
           expect(decodedError?.args[0]).to.equal("Message from require");
         } else {
-          // /!\ PROBLEM TO HANDLE WITH CORE TEAM /!\
-          if (network.name == "etherlink" || network.name == "nightly") {
-            console.log("protection for etherlink (and nightly), problem to handle")
-            return;
-          }
           console.log(error);
           throw new Error("An unexpected error occured");
         }
@@ -396,11 +386,6 @@ describe('EVMComptaibilityTest', () => {
           const decodedError = evmCompatibilityTest.interface.parseError(error.data);
           expect(decodedError?.name).to.equal("Panic");
         } else {
-          // /!\ PROBLEM TO HANDLE WITH CORE TEAM /!\
-          if (network.name == "etherlink" || network.name == "nightly") {
-            console.log("protection for etherlink (and nightly), problem to handle")
-            return;
-          }
           console.log(error);
           throw new Error("An unexpected error occured");
         }
