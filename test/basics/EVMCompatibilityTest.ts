@@ -453,6 +453,7 @@ describe('EVMComptaibilityTest', () => {
         expect(Number(await evmCompatibilityTest.getBlockPrevrandao())).to.not.equal(0);
       }
       expect(Number(await evmCompatibilityTest.getBlockGasLimit())).to.not.equal(0);
+      expect(Number(await evmCompatibilityTest.getBlockChainId())).to.equal(network.config.chainId);
       // Test removed cause not supported on etherlink atm -> see if targeting block 1 is ok
       expect(await evmCompatibilityTest.getBlockhash(1)).to.not.equal("0x0000000000000000000000000000000000000000000000000000000000000000");
     });

@@ -228,6 +228,10 @@ contract EVMCompatibilityTest {
         return block.gaslimit;
     }
 
+    function getBlockChainId() public view returns(uint256) {
+        return block.chainid;
+    }
+
     function getBlockhash(uint blockNumber) public view returns(bytes32) {
         return blockhash(blockNumber);
     }
